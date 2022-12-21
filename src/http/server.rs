@@ -754,7 +754,7 @@ impl<'a> EspHttpConnection<'a> {
     where
         E: Display,
     {
-        if self.response_headers.is_some() {
+        if !self.response_headers.is_some() {
             info!(
                 "About to handle internal error [{}], response not sent yet",
                 &error
@@ -764,6 +764,13 @@ impl<'a> EspHttpConnection<'a> {
                 warn!(
                     "Internal error[{}] while rendering another internal error:\n{}",
                     error2, error
+                );
+            }
+
+            if let Err(complete_err) = self.complete() {
+                warn!(
+                    "Internal error[{}] while completing error handling response for:\n{}",
+                    complete_err, error
                 );
             }
         } else {
